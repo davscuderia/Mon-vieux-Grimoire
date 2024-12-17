@@ -8,7 +8,7 @@ const User = require('../models/User')
 
 router.get('/', auth, stuffCtrl.getAllStuff)
 router.get('/bestrating', auth, stuffCtrl.bestRating)
-router.post('/', auth, stuffCtrl.createBook)
+router.post('/', auth, multer, stuffCtrl.createBook)
 router.post('/:id/rating', auth, stuffCtrl.rateBook)
 router.get('/:id', auth, stuffCtrl.getOneBook)
 router.put('/:id', auth,  stuffCtrl.modifyBook)
