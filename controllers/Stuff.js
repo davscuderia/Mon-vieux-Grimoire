@@ -77,35 +77,40 @@ exports.modifyBook = (req, res, next) => {
 }
 
 exports.rateBook = (req, res, next) => {
-    const { userId, grade } = req.body
-        if (grade < 0 || grade > 5) {
-           return res.status(400).json({ message: 'La note doit être comprise entre 0 et 5.'})
-        }    
+    console.log('requete recu :', req.body)  
+    const { userId, rating } = req.body
+    
+
+        if (rating < 0 || rating > 5) {
+            return res.status(400).json({ message: 'la note est un nombre non valide' })
+        }
+        
     Book.findOne({ _id: req.params.id })
         .then((book) => {
             if (!book) {
                 return res.status(404).json({ message: 'Livre non trouvé !'})
             }
+
     const existingRating = book.ratings.find((rating) => rating.userId === userId)
         if (existingRating) {
         return res.status(400).json({ message: 'Vous avez déjà noté ce livre.'})
         }
             //pour ajouter la note dans le tableau
-            book.rating.push({ userId, grade })
+            book.ratings.push({ userId, grade: rating })
 
             // recalculer la moyenne des notes
             const totalRatings = book.ratings.length
-            const averageRating = book.ratings.reduce((sum, rating) => sum + rating.grade, 0)
-            
-            book.averageRating = averageRating
+            const averageRating = book.ratings.reduce((sum, ratingItem) => sum + ratingItem.grade, 0) / totalRatings
+                
+                book.averageRating = averageRating
 
             book.save()
-            .then((updateBook) => {
-                res.status(200).json(updateBook)
-            })
-            .catch((error) => {
-                res.status(500).json({ error })
-            })
+                .then((updateBook) => {
+                    res.status(200).json(updateBook)
+                })
+                .catch((error) => {
+                    res.status(500).json({ error })
+                })
         })
         .catch((error) => {
             res.status(500).json({ error })

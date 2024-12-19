@@ -4,7 +4,7 @@ const router = express.Router()
 const auth = require('../middleware/auth')
 const { upload, optimizeImage } = require('../middleware/upload')
 const multer = require('../middleware/multer-config')
-//const User = require('../models/User')
+const User = require('../models/User')
 const stuffCtrl = require('../controllers/Stuff')
 
 
