@@ -1,4 +1,8 @@
 const multer = require('multer')
+const fs = require('fs')
+const path = require('path')
+
+const imagesFolder = path.join(__dirname, '../images')
 
 const MIME_TYPES = {
     'image/jpg': 'jpg',
@@ -7,14 +11,22 @@ const MIME_TYPES = {
     'image/webp': 'webp'
 }
 
+
 const storage = multer.diskStorage({
     destination: (req, file, callback) => {
-       callback(null, 'images') 
+        const uploadFolder = `${imagesFolder}/temp`
+        if (!fs.existsSync(uploadFolder)) {
+            fs.mkdirSync(uploadFolder, { recursive: true })
+        }
+       callback(null, uploadFolder) 
     },
     filename: (req, file, callback) => {
-        const name = file.originalname.split(' ').join('_')
+        const name = file.originalname.split(' ').join('_').replace(/\.[^/.]+$/, '')
         const extension = MIME_TYPES[file.mimetype]
-        callback(null, name + Date.now() + '.' + extension)
+        if (!extension) {
+            return callback(new Error('Type de fichier non supporté'))
+        }
+        callback(null, `${name}_${Date.now()}.${extension}`)
     }
 })
 

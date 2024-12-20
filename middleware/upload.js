@@ -1,20 +1,18 @@
-const multer = require('multer')
 const sharp = require('sharp')
 const fs = require('fs')
 const path = require('path')
-const { storage } = require('../middleware/multer-config')
-const upload = require('../middleware/multer-config')
+
 
 const optimizeImage = (req, res, next) => {
+    console.log('fichier reçu par multer', req.file)
+    
     if (!req.file) {
-        return res.status(400).json({ message: 'Aucun fichier trouvé.' })
+        console.log('aucun fichier à optimiser')
+        return next()
     }
-    if (!req.file.filename) {
-        return res.status(400).json({ message: 'nom de fichier manquant'})
-    }
-    console.log(req.file)
+
     const tempPath = req.file.path
-    const outputPath = `images/temp_${Date.now()}.webp`
+    const outputPath = path.join('images', `optimized_${Date.now()}.webp`)
    
     sharp(tempPath)
         .webp({ quality: 80 })
@@ -25,7 +23,8 @@ const optimizeImage = (req, res, next) => {
                 if (err) console.error('Erreur de suppression fichier :', err)
             })
             req.file.path = outputPath
-            req.file.filename = outputPath.split('/').pop() //maj du nom de fichier
+            req.file.filename = path.basename(outputPath)
+            console.log('optimisation réussie, nouveau fichier :', req.file)
             next()
         })
         .catch((error) => {
@@ -34,4 +33,4 @@ const optimizeImage = (req, res, next) => {
         })
 }
 
-module.exports = { upload, optimizeImage }
+module.exports = { optimizeImage }
