@@ -100,7 +100,7 @@ exports.rateBook = (req, res, next) => {
             const totalRatings = book.ratings.length
             const averageRating = book.ratings.reduce((sum, ratingItem) => sum + ratingItem.grade, 0) / totalRatings
                 
-                book.averageRating = averageRating
+                book.averageRating = Math.round(averageRating * 10) / 10 //limite à une décimale
 
             book.save()
                 .then((updateBook) => {
